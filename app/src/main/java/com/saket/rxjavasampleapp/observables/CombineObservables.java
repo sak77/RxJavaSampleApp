@@ -86,6 +86,11 @@ Difference between combineLatest and join??
 
     //Merge operator simply merges the emissions from each observable in random sequence. In this case
     //we see merge emits city items.
+/*
+    Observable.merge will subscribe to each observable (.i.e. execute the API request)
+    and then return the response from different observables in the list.
+    Unlike this, Observable.fromIterable() simply emits the individual observables without subscribing to them.
+*/
     public void useMergeToCombineObservables() {
         //Even observables
         Integer[] arrEvenNumbers = new Integer[]{2,4,6,8,10};

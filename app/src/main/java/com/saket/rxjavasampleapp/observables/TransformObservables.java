@@ -189,11 +189,6 @@ public class TransformObservables {
         2. flatmap does not maintain the sequence of emits unlike map
         3. flatmap observable combines all the emit values into a single emit whereas
         map observable would emit individual emits.
-
-        Observable.merge will subscribe to each observable (.i.e. execute the API request)
-         and then return the response from different observables in the list.
-        Unlike this, Observable.fromIterable() simply emits the individual observables without subscribing to them.
-
      */
     public void useFlatmapforObservable() {
         //We use the same map example here.
