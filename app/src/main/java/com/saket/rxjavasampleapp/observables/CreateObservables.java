@@ -79,6 +79,11 @@ public class CreateObservables {
     }
 
     //From - Can be used to create observable that emits items from a list, array or some other iterable.
+    //Please note that if you have a list of observables. Then calling Observable.fromIterable simply
+    // emits the individual observables from that list. It does NOT subscribe to them. Hence if an API request
+    //returns an observable, then in this case the API request is not executed as it is not subscribed.
+    //So in this case you can use something like the merge operator which subscribes to each observable in the
+    // list and returns the output.
     public void useFromforObservable() {
         List<Car> lstCars = new ArrayList<>();
         //Create list of 20 cars
