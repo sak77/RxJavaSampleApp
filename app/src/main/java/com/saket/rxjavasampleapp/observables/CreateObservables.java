@@ -35,11 +35,10 @@ public class CreateObservables {
         String[] arrDays = new String[]{"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"
                 , "Saturday"};
         //ObservableOnSubscribe is a Functional Interface(FI) with a single method
-        //subscribe that accepts an instance of ObservaleEmitter
+        //subscribe that accepts an instance of ObservableEmitter
         ObservableOnSubscribe<String> handler = emitter -> {
             try {
-                for (int i = 0; i < arrDays.length; i ++)
-                emitter.onNext(arrDays[i]);
+                for (String arrDay : arrDays) emitter.onNext(arrDay);
 
                 //Once all values are emitted, call the onComplete
                 emitter.onComplete();
@@ -49,7 +48,7 @@ public class CreateObservables {
             }
         };
 
-        //Create new observable using create and subscribe a observer<String> instance
+        //Create new observable using create and subscribe an observer<String> instance
         Observable.create(handler)
                 .subscribe(new Observer<String>() {
                     @Override
