@@ -49,6 +49,8 @@ public class CreateObservables {
         };
 
         //Create new observable using create and subscribe an observer<String> instance
+        //By default the observable will perform its operations on same thread on which subscribe
+        //is called. However, some observables emit data  To change thread, use a Scheduler.
         Observable.create(handler)
                 .subscribe(new Observer<String>() {
                     @Override
@@ -115,6 +117,11 @@ public class CreateObservables {
         };
 
         //Now create observerable using from
+        /*
+        Again, Rxjava is single threaded by default. All instructions are executed on a single thread
+        by default. This thread is usually the thread on which the subscribe() is called. Also, some operators
+        emit items on the main thread whereas some emit items on a separate thread.
+         */
         Observable.fromIterable(lstCars)
                 .subscribe(carObserver);
     }
@@ -156,7 +163,7 @@ public class CreateObservables {
         };
 
         //Use just to create observable that emits instance(s) of Car class.
-        Observable.just(new Car("Subaru",1000), new Car("Volvo", 2500))
+        Observable.just(new Car("Subaru", 1000), new Car("Volvo", 2500))
                 .subscribe(carObserver);
     }
 
@@ -346,7 +353,7 @@ public class CreateObservables {
                 });
     }
 
-    private class Car {
+    private static class Car {
         String carModel;
         int carPrice;
         //mandatory properties are part of the constructor
