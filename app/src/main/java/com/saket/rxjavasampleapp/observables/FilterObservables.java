@@ -2,6 +2,7 @@ package com.saket.rxjavasampleapp.observables;
 
 import android.util.Log;
 
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -31,9 +32,9 @@ public class FilterObservables {
             @Override
             public Integer apply(Integer integer) throws Exception {
                 //Introduce random sleep value
-                int randomeval = ThreadLocalRandom.current().nextInt(1000, 5000);
-                Log.d(TAG, "apply: " + randomeval);
-                Thread.sleep(randomeval);
+                int randomDelay = new Random().nextInt(1000);
+                Log.d(TAG, "apply: " + randomDelay);
+                Thread.sleep(randomDelay);
                 return integer;
             }
         })

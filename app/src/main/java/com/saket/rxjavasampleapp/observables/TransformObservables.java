@@ -4,6 +4,8 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
@@ -34,30 +36,14 @@ public class TransformObservables {
                 "Thursday", "Friday", "Saturday"};
         Observable.fromArray(arrDays)
                 .buffer(2)
-                .subscribe(new Observer<List<String>>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        Log.d(TAG, "onSubscribe: ");
-                    }
-
-                    @Override
-                    public void onNext(List<String> strings) {
-                        Log.d(TAG, "onNext: ");
-                        for (String currString : strings) {
-                            Log.d(TAG, "string: " + currString);
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e(TAG, "onError: ", e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        Log.d(TAG, "onComplete: ");
-                    }
-                });
+                .doOnNext(strings -> {
+                    Log.d(TAG, "onNext: ");
+                    strings.forEach(s -> {Log.d(TAG, "string: " + s); });
+                })
+                .doOnComplete(() -> Log.d(TAG, "OnComplete:"))
+                .doOnSubscribe(disposable -> Log.d(TAG, "onSubscribe: "))
+                .doOnError(throwable -> Log.e(TAG, "onError: ", throwable))
+                .subscribe();
     }
 
     //GroupBy - divide Observable emits into a set of Observables organized by key.
@@ -133,11 +119,17 @@ public class TransformObservables {
         });
     }
 
-    //Map - applies a map function to each emit from the observable and returns the result item.
-    //sequence of emits is preserved.
+
     /*
-    Suppose we want to convert the price of the car before sending the emit to the observer.
-     */
+    Map - applies a map function to each emit from the observable and returns the result item.
+    sequence of emits is preserved.
+
+    So in this case even if we add a random delay to the individual emits, it does not impact
+    the sequence of emissions.
+
+    Map function is applied to individual emit and its value is propogated downstream before
+    next emit.
+ */
     public void useMapforObservable() {
         List<Car> lstCar = new ArrayList<>();
         //Here map function takes a car instance as input and
@@ -147,6 +139,8 @@ public class TransformObservables {
             public Integer apply(Car car) throws Exception {
                 //Get car's price
                 int price = car.carPrice;
+                int randomDelay = new Random().nextInt(1000);
+                Thread.sleep(randomDelay);
                 //apply conversion
                 int new_price = price * 25;
                 return new_price;
@@ -185,10 +179,12 @@ public class TransformObservables {
 
     /*
         Flatmap - this is similar to map but there are 2 crucial differences.
-        1. The flatmap returns an observable while map returns the value.
-        2. flatmap does not maintain the sequence of emits unlike map
-        3. flatmap observable combines all the emit values into a single emit whereas
-        map observable would emit individual emits.
+        1. flatmap applies the map to each item and merges them to a new observable. Later it
+        propogates values from the new observable downstream.
+        2. flatmap does not maintain the sequence of emits. What this means is that
+        the tasks are executed asynchronously. So if one emit takes longer it will emit after
+        the a later emit in the sequence. However, if all emits take same time, then it is
+        possible that they will come in same sequence.
      */
     public void useFlatmapforObservable() {
         //We use the same map example here.
@@ -198,22 +194,21 @@ public class TransformObservables {
             lstCar.add(currCar);
         }
         Observable.fromIterable(lstCar)
-                .flatMap(new Function<Car, ObservableSource<Car>>() {
-                    @Override
-                    public ObservableSource<Car> apply(Car car) throws Exception {
-                        //Here we apply the price conversion and update the car object
-                        int new_price = car.carPrice + 25;
-                        car.carPrice = new_price;
-                        //now instead of returning just the car, we return an observable that emits the updated car instance.
-                        return Observable.create(new ObservableOnSubscribe<Car>() {
-                            @Override
-                            public void subscribe(ObservableEmitter<Car> emitter) throws Exception {
-                                emitter.onNext(car);
-                                emitter.onComplete();
-                            }
-                        })
-                                .subscribeOn(Schedulers.io());  //Without this, the emits happen in sequence. NEED TO INVESTIGATE??
-                    }
+                .flatMap((Function<Car, ObservableSource<Car>>) car -> {
+                    //Here we apply the price conversion and update the car object
+                    int new_price = car.carPrice + 25;
+                    car.carPrice = new_price;
+                    /*So, here we introduce a random delay to show how
+                    flatmap does not wait for each emit to happen sequentially.
+                    Instead it executes them in a async manner. It does not preserve the
+                    order of emits from lstCar.
+                     */
+
+                    int randomDelay = new Random().nextInt(10);
+                    //now instead of returning just the car, we return an observable that emits the updated car instance.
+                    return Observable.just(car)
+                            .delay(randomDelay, TimeUnit.SECONDS);
+                            //.subscribeOn(Schedulers.io());  //Without this, the emits happen in sequence. NEED TO INVESTIGATE??
                 }).subscribe(new Observer<Car>() {
                     @Override
                     public void onSubscribe(Disposable d) {
@@ -255,14 +250,12 @@ public class TransformObservables {
                         //Update Car price
                         int new_price = car.carPrice + 25;
                         car.carPrice = new_price;
-                        return Observable.create(new ObservableOnSubscribe<Car>() {
-                            @Override
-                            public void subscribe(ObservableEmitter<Car> emitter) throws Exception {
-                                emitter.onNext(car);
-                                emitter.onComplete();
-                            }
-                        })
-                                .subscribeOn(Schedulers.io());  //Unlike flatmap, this does not have any impact on sequence of emits....need to investigate
+                        /*
+                        Here by subscribing on Schedulers.io we try to introduce some asynchronity.
+                        But still concatMap ensures commits occur in sequence.
+                         */
+                        return Observable.just(car)
+                                .subscribeOn(Schedulers.io());
                     }
                 }).subscribe(new Observer<Car>() {
             @Override

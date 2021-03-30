@@ -4,6 +4,7 @@ import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
@@ -84,23 +85,34 @@ Difference between combineLatest and join??
                 })*/
     }
 
-    //Merge operator simply merges the emissions from each observable in random sequence. In this case
-    //we see merge emits city items.
 /*
-    Observable.merge will subscribe to each observable (.i.e. execute the API request)
+    Observable.merge will combine multiple observables into one by merging their emits.
+
+    Note it does not preserve the sequence of observables. So if first observable takes more time
+    to execute, it will emit values from the next observable if its ready.
+
+    This is somewhat similar to what happens in flatmap. So in below case, i have introduced a
+    random delay in both observables, so it can be seen that some times, emits from observable 2
+    are displayed before emits from observable 1.
+
+    But emits within an observable are so far seen to emit in one go...but maybe that is not required either??
+
+    In case of API request in app, it will subscribe to each observable (.i.e. execute the API request)
     and then return the response from different observables in the list.
     Unlike this, Observable.fromIterable() simply emits the individual observables without subscribing to them.
 */
     public void useMergeToCombineObservables() {
         //Even observables
         Integer[] arrEvenNumbers = new Integer[]{2,4,6,8,10};
+        int randomDelay1 = new Random().nextInt(10);
         Observable<Integer> evenObservables = Observable.fromArray(arrEvenNumbers)
-                .subscribeOn(Schedulers.io()); //Without this subscribeOn, the emits always happen sequentially
+                .delay(randomDelay1, TimeUnit.SECONDS);
 
         //Odd observables
         Integer[] arrOddNumbers = new Integer[]{1,3,5,7,9};
+        int randomDelay2 = new Random().nextInt(10);
         Observable<Integer> oddObservables = Observable.fromArray(arrOddNumbers)
-                .subscribeOn(Schedulers.io());  //Without this subscribeOn, the emits always happen sequentially
+                .delay(randomDelay2, TimeUnit.SECONDS);
 
         List<Observable<Integer>> lstObservables = new ArrayList<>();
         lstObservables.add(evenObservables);
@@ -174,8 +186,8 @@ Difference between combineLatest and join??
                 });
     }
 
-    //Unlike Merge, zip combines the emissions from multiple items and emits a single emission. So in this
-    //case it emits an array object which contains all integers.
+    //zip combines emissions from multiple observables, applies a function to each emit and emits a single emission.
+    // So in this case it emits an array object which contains all integers.
     public void useZipToCombineObservables() {
         //Even observables
         Integer[] arrEvenNumbers = new Integer[]{2,4,6,8,10};
