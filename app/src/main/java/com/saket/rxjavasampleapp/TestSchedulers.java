@@ -3,20 +3,19 @@ package com.saket.rxjavasampleapp;
 import android.util.Log;
 
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
 
-import io.reactivex.Observable;
-import io.reactivex.ObservableSource;
-import io.reactivex.Observer;
-import io.reactivex.Scheduler;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
-import io.reactivex.functions.Function;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableSource;
+import io.reactivex.rxjava3.core.Observer;
+import io.reactivex.rxjava3.disposables.Disposable;
+import io.reactivex.rxjava3.functions.Consumer;
+import io.reactivex.rxjava3.functions.Function;
+import io.reactivex.rxjava3.schedulers.Schedulers;
 
 /**
  * Created by sshriwas on 2020-03-15
  */
-public class Schedulers {
+public class TestSchedulers {
     
     private static final String TAG = "Schedulers";
 
@@ -26,7 +25,7 @@ public class Schedulers {
     public void useSchedulersio() {
         Integer[] arrInteger = new Integer[]{1,2,3,4,5,6,7,8,9,10};
         Observable.fromArray(arrInteger)
-                .subscribeOn(io.reactivex.schedulers.Schedulers.newThread())
+                .subscribeOn(Schedulers.newThread())
                 .flatMap(new Function<Integer, ObservableSource<Integer>>() {
                     @Override
                     public ObservableSource<Integer> apply(Integer integer) throws Exception {
@@ -35,7 +34,7 @@ public class Schedulers {
                         Log.d(TAG, "delay: " + delay);
                         Thread.sleep(delay);
                         return Observable.just(integer)
-                                .subscribeOn(io.reactivex.schedulers.Schedulers.newThread());
+                                .subscribeOn(Schedulers.newThread());
                     }
                 })
                 .doAfterNext(new Consumer<Integer>() {

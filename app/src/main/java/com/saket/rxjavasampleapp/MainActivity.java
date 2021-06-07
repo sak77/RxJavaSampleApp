@@ -10,6 +10,18 @@ import com.saket.rxjavasampleapp.observables.CreateObservables;
 import com.saket.rxjavasampleapp.observables.FilterObservables;
 import com.saket.rxjavasampleapp.observables.TransformObservables;
 
+/**
+ * ReactiveX - An API for Asynchronous programming with Observable streams.
+ *
+ * RxJava – Reactive Extensions for the JVM –
+ * a library for composing asynchronous and event-based programs using observable sequences
+ * for the Java VM.
+ *
+ * The purpose of this project is to explore the RxJava library.
+ * What are the ways to create/transform/filter/combine an observable
+ * What are schedulers and how they impact the stream
+ *
+ */
 public class MainActivity extends AppCompatActivity implements
         CreateObservables.updateValueListener {
 
@@ -21,11 +33,11 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mTextView = findViewById(R.id.textView);
-        //createObservables();
+        createObservables();
         //transformObservables();
         //filterObservables();
         //combineObservables();
-        useSchedulers();
+        //useSchedulers();
     }
 
     private void createObservables() {
@@ -65,8 +77,8 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void useSchedulers() {
-        Schedulers schedulers = new Schedulers();
-        schedulers.useSchedulersio();
+        TestSchedulers testSchedulers = new TestSchedulers();
+        testSchedulers.useSchedulersio();
     }
 
     @Override
