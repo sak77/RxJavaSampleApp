@@ -1,4 +1,4 @@
-package com.saket.rxjavasampleapp.observables;
+package com.saket.rxjavasampleapp.Observable;
 
 /**
  * Created by sshriwas on 2020-03-15

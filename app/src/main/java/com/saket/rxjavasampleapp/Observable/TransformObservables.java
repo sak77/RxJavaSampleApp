@@ -1,4 +1,4 @@
-package com.saket.rxjavasampleapp.observables;
+package com.saket.rxjavasampleapp.Observable;
 
 import android.util.Log;
 
@@ -208,7 +208,6 @@ public class TransformObservables {
                     //now instead of returning just the car, we return an observable that emits the updated car instance.
                     return Observable.just(car)
                             .delay(randomDelay, TimeUnit.SECONDS);
-                            //.subscribeOn(Schedulers.io());  //Without this, the emits happen in sequence. NEED TO INVESTIGATE??
                 }).subscribe(new Observer<Car>() {
                     @Override
                     public void onSubscribe(Disposable d) {
@@ -217,7 +216,7 @@ public class TransformObservables {
 
                     @Override
                     public void onNext(Car car) {
-                        Log.d(TAG, "New Car price: " + car.carPrice);
+                        Log.d(TAG, "New Car: " + car.carModel + " price: " + car.carPrice);
                     }
 
                     @Override
@@ -250,12 +249,10 @@ public class TransformObservables {
                         //Update Car price
                         int new_price = car.carPrice + 25;
                         car.carPrice = new_price;
-                        /*
-                        Here by subscribing on Schedulers.io we try to introduce some asynchronity.
-                        But still concatMap ensures commits occur in sequence.
-                         */
+                        int randomDelay = new Random().nextInt(10);
+
                         return Observable.just(car)
-                                .subscribeOn(Schedulers.io());
+                                .delay(randomDelay, TimeUnit.SECONDS);
                     }
                 }).subscribe(new Observer<Car>() {
             @Override
@@ -265,7 +262,7 @@ public class TransformObservables {
 
             @Override
             public void onNext(Car car) {
-                Log.d(TAG, "New Car price: " + car.carPrice);
+                Log.d(TAG, "New Car " + car.carModel + " price: " + car.carPrice);
             }
 
             @Override
@@ -306,7 +303,7 @@ public class TransformObservables {
                                 emitter.onComplete();
                             }
                         })
-                                .subscribeOn(Schedulers.io());  //Without this, the emits happen in sequence. NEED TO INVESTIGATE??
+                                .subscribeOn(Schedulers.io());  //Without this, the emits happen in sequence.
                     }
                 }).
                 subscribe(new Observer<Car>() {

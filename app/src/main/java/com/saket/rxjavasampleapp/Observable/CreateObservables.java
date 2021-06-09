@@ -1,4 +1,4 @@
-package com.saket.rxjavasampleapp.observables;
+package com.saket.rxjavasampleapp.Observable;
 
 import android.app.Activity;
 import android.util.Log;

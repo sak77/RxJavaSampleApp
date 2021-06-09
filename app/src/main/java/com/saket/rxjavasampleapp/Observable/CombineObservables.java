@@ -1,4 +1,4 @@
-package com.saket.rxjavasampleapp.observables;
+package com.saket.rxjavasampleapp.Observable;
 
 import android.util.Log;
 
@@ -186,50 +186,40 @@ Difference between combineLatest and join??
     }
 
     //zip combines emissions from multiple observables, applies a function to each emit and emits a single emission.
+    //Also it preserves the sequence of emits.
     // So in this case it emits an array object which contains all integers.
     public void useZipToCombineObservables() {
         //Even observables
         Integer[] arrEvenNumbers = new Integer[]{2,4,6,8,10};
-        Observable<Integer> evenObservables = Observable.fromArray(arrEvenNumbers);
+        int randomDelay1 = new Random().nextInt(10);
+        Observable<Integer> evenObservables = Observable.fromArray(arrEvenNumbers)
+                .delay(randomDelay1, TimeUnit.SECONDS);
 
         //Odd observables
         Integer[] arrOddNumbers = new Integer[]{1,3,5,7,9};
-        Observable<Integer> oddObservables = Observable.fromArray(arrOddNumbers);
+        int randomDelay2 = new Random().nextInt(10);
+        Observable<Integer> oddObservables = Observable.fromArray(arrOddNumbers)
+                .delay(randomDelay2, TimeUnit.SECONDS);
 
         List<Observable<Integer>> lstObservables = new ArrayList<>();
         lstObservables.add(evenObservables);
         lstObservables.add(oddObservables);
-        //Now we use zip to combine their emits
-        Observable.zip(lstObservables, new Function<Object[], Object[]>() {
+        //Use zip to combine their emits by applying this combine Function
+        Observable.zip(lstObservables, new Function<Object[], String>() {
             @Override
-            public Object[] apply(Object[] objects) throws Exception {
+            public String apply(Object[] objects) throws Exception {
                 //This function for now does nothing except return the objects emitted by the observable.
                 //also it seems its input parameter has to be object[] but output can be anything..
-                return objects;
+                /*
+                The object array will contain individual emit from each of the observables.
+                 */
+                return "Combining emit " + objects[0] + " from observable 1 with emit " + objects[1] + " from observable 2";
             }
         })
-                .subscribe(new Observer<Object[]>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        Log.d(TAG, "onSubscribe: ");
-                    }
-
-                    @Override
-                    public void onNext(Object[] objects) {
-                        for (Object o : objects) {
-                            Log.d(TAG, "onNext: " + (Integer)o);
-                        }
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        Log.e(TAG, "onError: ", e);
-                    }
-
-                    @Override
-                    public void onComplete() {
-                        Log.d(TAG, "onComplete: ");
-                    }
-                });
+                .doOnSubscribe(disposable -> Log.d(TAG, "doOnSubscribe called"))
+                .doOnNext(value -> Log.d(TAG, value))
+                .doOnError(throwable -> Log.d(TAG, throwable.getLocalizedMessage()))
+                .doOnComplete(() -> Log.d(TAG, "doOnComplete called"))
+                .subscribe();
     }
 }
