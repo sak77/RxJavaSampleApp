@@ -5,6 +5,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.saket.rxjavasampleapp.Flowable.CreateFlowable;
 import com.saket.rxjavasampleapp.Observable.CombineObservables;
 import com.saket.rxjavasampleapp.Observable.CreateObservables;
 import com.saket.rxjavasampleapp.Observable.FilterObservables;
@@ -29,6 +30,23 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mTextView = findViewById(R.id.textView);
+        //workWithObservables();
+        workWithFlowables();
+    }
+
+    private void workWithFlowables() {
+        createFlowables();
+    }
+
+    void createFlowables() {
+        CreateFlowable createFlowable = new CreateFlowable();
+        //createFlowable.createFlowableJust();
+        //createFlowable.createFlowable();
+        //createFlowable.createFlowableFrom();
+        createFlowable.createFlowableWithBuffer();
+    }
+
+    private void workWithObservables() {
         createObservables();
         //transformObservables();
         //filterObservables();
